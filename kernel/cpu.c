@@ -2299,11 +2299,6 @@ void init_cpu_present(const struct cpumask *src)
 	cpumask_copy(&__cpu_present_mask, src);
 }
 
-void set_cpu_possible(unsigned int cpu, bool possible)
-{
-	cpumask_copy(&__cpu_present_mask, src);
-}
-
 void init_cpu_possible(const struct cpumask *src)
 {
 	cpumask_copy(&__cpu_possible_mask, src);
