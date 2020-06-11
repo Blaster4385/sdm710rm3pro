@@ -1714,7 +1714,7 @@ static int query_client_usecase(struct msm_bus_tcs_usecase *tcs_usecase,
 
 	MSM_BUS_DBG("%s: cl: %u index: %d curr: %d num_paths: %d\n", __func__,
 		cl, index, client->curr, client->pdata->usecase->num_paths);
-	ret = query_usecase(client, log_transaction, index, tcs_usecase);
+	ret = query_usecase(client, index, tcs_usecase);
 	if (ret) {
 		pr_err("%s: Err updating path\n", __func__);
 		goto exit_query_client_usecase;
@@ -1765,8 +1765,7 @@ static int query_client_usecase_all(struct msm_bus_tcs_handle *tcs_handle,
 
 	MSM_BUS_ERR("%s: query_start", __func__);
 	for (i = 0; i < pdata->num_usecases; i++)
-		query_usecase(client, log_transaction, i,
-						&tcs_handle->usecases[i]);
+		query_usecase(client, i,&tcs_handle->usecases[i]);
 	tcs_handle->num_usecases = pdata->num_usecases;
 
 	if (ret) {
