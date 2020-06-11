@@ -1409,9 +1409,7 @@ static int update_client_paths(struct msm_bus_client *client, unsigned int idx)
 			if (dev)
 				msm_bus_commit_single(dev);
 		}
-
-		if (log_trns)
-			getpath_debug(src, lnode, pdata->active_only);
+		
 	}
 	commit_data();
 exit_update_client_paths:
@@ -1469,9 +1467,8 @@ exit_update_client_alc:
 	return ret;
 }
 
-static int query_usecase(struct msm_bus_client *client, bool log_trns,
-					unsigned int idx,
-					struct msm_bus_tcs_usecase *tcs_usecase)
+static int query_usecase(struct msm_bus_client *client,unsigned int idx,
+			 struct msm_bus_tcs_usecase *tcs_usecase)
 {
 	int lnode, src, dest, cur_idx;
 	uint64_t req_clk, req_bw, curr_clk, curr_bw;
