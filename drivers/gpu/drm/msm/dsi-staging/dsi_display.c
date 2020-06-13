@@ -38,13 +38,6 @@
 #include <linux/notifier.h>
 extern int oppo_dsi_update_seed_mode(void);
 extern int msm_drm_notifier_call_chain(unsigned long val, void *v);
-
-/*liping-m@PSW.MM.Display.Lcd.Stability, 2018-09-26,add for solve sau issue and silence*/
-extern int lcd_closebl_flag;
-
-extern int lcd_closebl_flag_fp;
-
-extern bool oppo_ffl_trigger_finish;
 #endif
 
 #define to_dsi_display(x) container_of(x, struct dsi_display, host)
@@ -154,12 +147,6 @@ void dsi_rect_intersect(const struct dsi_rect *r1,
 	}
 }
 
-#ifdef VENDOR_EDIT
-/*liping-m@PSW.MM.Display.LCD.Feature,2018-09-26 add for ffl feature */
-extern int oppo_start_ffl_thread(void);
-extern void oppo_stop_ffl_thread(void);
-#endif /* VENDOR_EDIT */
-
 int dsi_display_set_backlight(void *display, u32 bl_lvl)
 {
 	struct dsi_display *dsi_display = display;
@@ -180,9 +167,6 @@ int dsi_display_set_backlight(void *display, u32 bl_lvl)
 	}
 
 	#ifdef VENDOR_EDIT
-	/*liping-m@PSW.MM.Display.LCD.Stable,2018-09-26 add key log for debug */
-	pr_err("backlight level change to %d\n", bl_lvl);
-
 	/*liping-m@PSW.MM.Display.LCD.Feature,2018-09-26 add some delay to avoid screen flash */
 	if (panel->need_power_on_backlight && panel->type != EXT_BRIDGE) {
 		panel->need_power_on_backlight = false;
@@ -203,19 +187,10 @@ int dsi_display_set_backlight(void *display, u32 bl_lvl)
 			       panel->name, rc);
 			goto error;
 		}
-
-	/*liping-m@PSW.MM.Display.LCD.Feature,2018-09-26 add for ffl feature */
-		oppo_start_ffl_thread();
 	}
 	#endif /* VENDOR_EDIT */
 
 	panel->bl_config.bl_level = bl_lvl;
-
-	#ifdef VENDOR_EDIT
-	/*liping-m@PSW.MM.Display.LCD.Feature,2018-09-26 add for ffl feature */
-	if (oppo_ffl_trigger_finish == false)
-		goto error;
-	#endif /* VENDOR_EDIT */
 
 	/* scale backlight */
 	bl_scale = panel->bl_config.bl_scale;
@@ -234,16 +209,6 @@ int dsi_display_set_backlight(void *display, u32 bl_lvl)
 		       dsi_display->name, rc);
 		goto error;
 	}
-
-	//#ifdef VENDOR_EDIT
-	/*Mark.Yao@PSW.MM.Display.LCD.Stability,2018/4/28,add for silence reboot*/
-	if(lcd_closebl_flag) {
-		pr_err("silence reboot we should set backlight to zero\n");
-		bl_temp = 0;
-	} else if (bl_lvl) {
-		lcd_closebl_flag_fp = 0;
-	}
-	//#endif /*VENDOR_EDIT*/
 
 	rc = dsi_panel_set_backlight(panel, (u32)bl_temp);
 	if (rc)
@@ -1093,23 +1058,6 @@ int dsi_display_set_power(struct drm_connector *connector,
 	return rc;
 }
 #else /*VENDOR_EDIT*/
-extern bool sde_crtc_get_fingerprint_mode(struct drm_crtc_state *crtc_state);
-extern bool sde_crtc_get_fingerprint_pressed(struct drm_crtc_state *crtc_state);
-static bool sde_connector_get_fp_mode(struct drm_connector *connector)
-{
-	if (!connector || !connector->state || !connector->state->crtc)
-		return false;
-
-	return sde_crtc_get_fingerprint_mode(connector->state->crtc->state);
-}
-
-static bool sde_connector_get_fppress_mode(struct drm_connector *connector)
-{
-	if (!connector || !connector->state || !connector->state->crtc)
-		return false;
-
-	return sde_crtc_get_fingerprint_pressed(connector->state->crtc->state);
-}
 
 int dsi_display_set_power(struct drm_connector *connector,
 		int power_mode, void *disp)
@@ -1143,14 +1091,6 @@ int dsi_display_set_power(struct drm_connector *connector,
 			msm_drm_notifier_call_chain(MSM_DRM_EARLY_EVENT_BLANK,
 						    &notifier_data);
 
-			/*** skip aod off if fingerprintpress exist ***/
-			if (!sde_connector_get_fppress_mode(connector)) {
-				mutex_lock(&display->panel->panel_lock);
-				rc = dsi_panel_tx_cmd_set(display->panel, DSI_CMD_AOD_HBM_OFF);
-				mutex_unlock(&display->panel->panel_lock);
-				set_oppo_display_scene(OPPO_DISPLAY_AOD_SCENE);
-			}
-
 			msm_drm_notifier_call_chain(MSM_DRM_EVENT_BLANK,
 						    &notifier_data);
 			break;
@@ -1167,15 +1107,8 @@ int dsi_display_set_power(struct drm_connector *connector,
 		msm_drm_notifier_call_chain(MSM_DRM_EARLY_EVENT_BLANK,
 					   &notifier_data);
 		if(OPPO_DISPLAY_AOD_SCENE == get_oppo_display_scene()) {
-			if (sde_connector_get_fp_mode(connector)) {
-				mutex_lock(&display->panel->panel_lock);
-				rc = dsi_panel_tx_cmd_set(display->panel, DSI_CMD_AOD_HBM_ON);
-				mutex_unlock(&display->panel->panel_lock);
-				set_oppo_display_scene(OPPO_DISPLAY_AOD_HBM_SCENE);
-			} else {
-				rc = dsi_panel_set_nolp(display->panel);
-				set_oppo_display_scene(OPPO_DISPLAY_NORMAL_SCENE);
-			}
+			rc = dsi_panel_set_nolp(display->panel);
+			set_oppo_display_scene(OPPO_DISPLAY_NORMAL_SCENE);
 		}
 		oppo_dsi_update_seed_mode();
 		set_oppo_display_power_status(OPPO_DISPLAY_POWER_ON);
@@ -4959,12 +4892,6 @@ static int dsi_display_bind(struct device *dev,
 	if(0 != set_oppo_display_vendor(display->name)) {
 		pr_err("maybe send a null point to oppo display manager\n");
 	}
-
-	/*liping-m@PSW.MM.Display.Lcd.Stability, 2018-09-26,,add for solve sau issue*/
-	if(is_silence_reboot()) {
-		lcd_closebl_flag = 1;
-		lcd_closebl_flag_fp = 1;
-	}
 	#endif /*VENDOR_EDIT*/
 
 	mutex_lock(&display->display_lock);
@@ -6966,8 +6893,6 @@ int dsi_display_pre_disable(struct dsi_display *display)
 	#ifdef VENDOR_EDIT
 	/*Mark.Yao@PSW.MM.Display.LCD.Stable,2018-11-26 fix race on backlight and power change */
 	display->panel->need_power_on_backlight = false;
-	/*Mark.Yao@PSW.MM.Display.LCD.Stable,2018-10-25 fix ffl dsi abnormal on esd scene */
-	oppo_stop_ffl_thread();
 	#endif /* VENDOR_EDIT */
 	/* enable the clk vote for CMD mode panels */
 	if (display->config.panel_mode == DSI_OP_CMD_MODE)

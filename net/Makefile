@@ -11,7 +11,6 @@ tmp-$(CONFIG_COMPAT) 		:= compat.o
 obj-$(CONFIG_NET)		+= $(tmp-y)
 
 # LLC has to be linked before the files in net/802/
-obj-$(CONFIG_WIREGUARD) 	+= wireguard/
 obj-$(CONFIG_LLC)		+= llc/
 obj-$(CONFIG_NET)		+= ethernet/ 802/ sched/ netlink/
 obj-$(CONFIG_NETFILTER)		+= netfilter/
@@ -83,16 +82,4 @@ endif
 obj-$(CONFIG_QRTR)		+= qrtr/
 obj-$(CONFIG_NET_NCSI)		+= ncsi/
 obj-$(CONFIG_RMNET_DATA) += rmnet_data/
-obj-$(CONFIG_IPC_ROUTER)       += ipc_router/
-
-#ifdef VENDOR_EDIT
-#Yuan.Huang@PSW.CN.WiFi.Network.internet.1461349, 2018/06/18,
-#Add for WeChat lucky money recognition
-obj-y				+= oppo_nf_hooks/
-#endif /* VENDOR_EDIT */
-
-#ifdef VENDOR_EDIT
-#Xiong.Li@TECH.CN.WiFi.Network.2022890,2019/06/14,
-#Add for apps network monitors
-obj-y				+= oppo_apps_monitor/
-#endif /* VENDOR_EDIT */
+obj-$(CONFIG_IPC_ROUTER)	+= ipc_router/

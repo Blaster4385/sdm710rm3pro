@@ -211,7 +211,7 @@ struct dsi_panel {
 	bool sync_broadcast_en;
 #ifdef VENDOR_EDIT
 /*liping-m@PSW.MM.Display.Service.Feature,2018/9/26,for OnScreenFingerprint feature*/
-	bool is_hbm_enabled;
+	bool is_hbm_enabled; //satisfy oppo_display_private_api
 /*liping-m@PSW.MM.Display.LCD.Stable,2018/9/26 fix aod flash problem */
 	bool need_power_on_backlight;
 #endif
@@ -315,9 +315,11 @@ int dsi_panel_parse_esd_reg_read_configs(struct dsi_panel *panel,
 				struct device_node *of_node);
 
 void dsi_panel_ext_bridge_put(struct dsi_panel *panel);
+
 #ifdef VENDOR_EDIT
 /*liping-m@PSW.MM.Display.LCD.Stability,2018/9/26,add for oppo display new structure*/
 int dsi_panel_tx_cmd_set(struct dsi_panel *panel,
 			   enum dsi_cmd_set_type type);
 #endif
+
 #endif /* _DSI_PANEL_H_ */

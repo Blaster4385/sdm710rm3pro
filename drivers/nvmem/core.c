@@ -1007,4 +1007,3 @@ MODULE_AUTHOR("Srinivas Kandagatla <srinivas.kandagatla@linaro.org");
 MODULE_AUTHOR("Maxime Ripard <maxime.ripard@free-electrons.com");
 MODULE_DESCRIPTION("nvmem Driver Core");
 MODULE_LICENSE("GPL v2");
-

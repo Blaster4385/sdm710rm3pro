@@ -286,10 +286,12 @@ DTC_FLAGS += -Wno-unit_address_vs_reg \
 	-Wno-pci_bridge \
 	-Wno-pci_device_bus_num \
 	-Wno-pci_device_reg \
+	-Wno-avoid_unnecessary_addr_size \
+	-Wno-alias_paths \
+	-Wno-gpios_property \
 	-Wno-avoid_default_addr_size \
-	-Wno-interrupts_property \
 	-Wno-reg_format \
-	-Wno-gpios_property
+	-Wno-interrupts_property
 endif
 
 ifeq ($(KBUILD_ENABLE_EXTRA_GCC_CHECKS),2)
@@ -314,12 +316,6 @@ cmd_dt_S_dtb=						\
 
 $(obj)/%.dtb.S: $(obj)/%.dtb
 	$(call cmd,dt_S_dtb)
-
-ifneq ($(DTC_EXT),)
-DTC = $(DTC_EXT)
-else
-DTC = $(objtree)/scripts/dtc/dtc
-endif
 
 quiet_cmd_dtc = DTC     $@
 cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \

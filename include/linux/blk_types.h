@@ -1,4 +1,3 @@
-
 /*
  * Block data types and constants.  Directly include this file only to
  * break include dependency loop.
@@ -110,14 +109,8 @@ struct bio {
 #define bio_op(bio)	((bio)->bi_opf >> BIO_OP_SHIFT)
 
 #define bio_set_op_attrs(bio, op, op_flags) do {			\
-	if (__builtin_constant_p(op))					\
-		BUILD_BUG_ON((op) + 0U >= (1U << REQ_OP_BITS));		\
-	else								\
-		WARN_ON_ONCE((op) + 0U >= (1U << REQ_OP_BITS));		\
-	if (__builtin_constant_p(op_flags))				\
-		BUILD_BUG_ON((op_flags) + 0U >= (1U << BIO_OP_SHIFT));	\
-	else								\
-		WARN_ON_ONCE((op_flags) + 0U >= (1U << BIO_OP_SHIFT));	\
+	WARN_ON_ONCE((op) + 0U >= (1U << REQ_OP_BITS));			\
+	WARN_ON_ONCE((op_flags) + 0U >= (1U << BIO_OP_SHIFT));		\
 	(bio)->bi_opf = bio_flags(bio);					\
 	(bio)->bi_opf |= (((op) + 0U) << BIO_OP_SHIFT);			\
 	(bio)->bi_opf |= (op_flags);					\
@@ -137,11 +130,6 @@ struct bio {
 #define BIO_QUIET	7	/* Make BIO Quiet */
 #define BIO_CHAIN	8	/* chained bio, ->bi_remaining in effect */
 #define BIO_REFFED	9	/* bio has elevated ->bi_cnt */
-#define BIO_THROTTLED	10	/* This bio has already been subjected to
-				 * throttling rules. Don't do it again. */
-#define BIO_TRACE_COMPLETION 11	/* bio_endio() should trace the final completion
-				 * of this bio. */
-/* See BVEC_POOL_OFFSET below before adding new flags */
 
 /*
  * Flags starting here get preserved by bio_reset() - this includes
@@ -194,10 +182,6 @@ enum rq_flag_bits {
 	__REQ_INTEGRITY,	/* I/O includes block integrity payload */
 	__REQ_FUA,		/* forced unit access */
 	__REQ_PREFLUSH,		/* request for cache flush */
-#ifdef VENDOR_EDIT
-/*Huacai.Zhou@PSW.BSP.Kernel.Performance, 2018-04-28, add foreground task io opt*/
-	__REQ_FG,		/* foreground activity */
-#endif /*VENDOR_EDIT*/
 	__REQ_BARRIER,		/* marks flush req as barrier */
         /* Android specific flags */
 	__REQ_NOENCRYPT,	/* ok to not encrypt (already encrypted at fs
@@ -246,17 +230,9 @@ enum rq_flag_bits {
 
 #define REQ_FAILFAST_MASK \
 	(REQ_FAILFAST_DEV | REQ_FAILFAST_TRANSPORT | REQ_FAILFAST_DRIVER)
-#ifdef VENDOR_EDIT
-/*Huacai.Zhou@PSW.BSP.Kernel.Performance, 2018-04-28, add foreground task io opt*/
-#define REQ_COMMON_MASK \
-	(REQ_FAILFAST_MASK | REQ_SYNC | REQ_META | REQ_PRIO | REQ_NOIDLE | \
-	 REQ_PREFLUSH | REQ_FUA | REQ_INTEGRITY | REQ_NOMERGE | REQ_BARRIER | REQ_FG)
-#else
 #define REQ_COMMON_MASK \
 	(REQ_FAILFAST_MASK | REQ_SYNC | REQ_META | REQ_PRIO | REQ_NOIDLE | \
 	 REQ_PREFLUSH | REQ_FUA | REQ_INTEGRITY | REQ_NOMERGE | REQ_BARRIER)
-#endif /*VENDOR_EDIT*/
-
 #define REQ_CLONE_MASK		REQ_COMMON_MASK
 
 /* This mask is used for both bio and request merge checking */
@@ -281,10 +257,6 @@ enum rq_flag_bits {
 #define REQ_ALLOCED		(1ULL << __REQ_ALLOCED)
 #define REQ_COPY_USER		(1ULL << __REQ_COPY_USER)
 #define REQ_PREFLUSH		(1ULL << __REQ_PREFLUSH)
-#ifdef VENDOR_EDIT
-/*Huacai.Zhou@PSW.BSP.Kernel.Performance, 2018-04-28, add foreground task io opt*/
-#define REQ_FG		(1ULL << __REQ_FG)
-#endif /*VENDOR_EDIT*/
 #define REQ_FLUSH_SEQ		(1ULL << __REQ_FLUSH_SEQ)
 #define REQ_IO_STAT		(1ULL << __REQ_IO_STAT)
 #define REQ_MIXED_MERGE		(1ULL << __REQ_MIXED_MERGE)
