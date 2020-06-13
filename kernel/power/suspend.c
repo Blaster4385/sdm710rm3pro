@@ -722,7 +722,7 @@ static int enter_state(suspend_state_t state)
     pr_info("%s suspend_prepare success\n", __func__);
 #endif /* VENDOR_EDIT */
     if (suspend_test(TEST_FREEZER))
-        goto Finish;
+    { goto Finish;}
 
 	trace_suspend_resume(TPS("suspend_enter"), state, false);
 	pr_debug("PM: Suspending system (%s)\n", pm_states[state]);

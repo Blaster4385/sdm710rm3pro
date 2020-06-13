@@ -1021,7 +1021,7 @@ void posix_cpu_timer_schedule(struct k_itimer *timer)
 	struct sighand_struct *sighand;
 	unsigned long flags;
 	struct task_struct *p = timer->it.cpu.task;
-	unsigned long long now;
+	unsigned long long now = 0;
 
 	WARN_ON_ONCE(p == NULL);
 
