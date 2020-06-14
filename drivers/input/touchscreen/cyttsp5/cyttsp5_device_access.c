@@ -1834,7 +1834,7 @@ static ssize_t cyttsp5_cmcp_test_store(struct device *dev,
 	 * because other test does not has concept of basic check
 	 */
 	if (test_item > 0 && test_item < 5)
-		range_check = 0;
+	{	range_check = 0;
 		dad->cmcp_test_items = test_item;
 		dad->cmcp_range_check = range_check;
 		dad->cmcp_force_calibrate = force_calibrate;
@@ -1844,7 +1844,7 @@ static ssize_t cyttsp5_cmcp_test_store(struct device *dev,
 			cmcp_test_case_array[test_item],
 			cmcp_test_range_check_array[range_check],
 			cmcp_test_force_cal_array[force_calibrate]);
-
+}
 error:
 	mutex_unlock(&dad->sysfs_lock);
 	pm_runtime_put(dev);

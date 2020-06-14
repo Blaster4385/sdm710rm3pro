@@ -464,7 +464,7 @@ static int sensor_gc5035_write_dpc_data(struct cam_sensor_ctrl_t * s_ctrl)
     int j,i; */
 
     if (totalDpcFlag == 0)
-        return 0;
+       { return 0;}
 
 	sensor_setting.reg_setting = gc5035OTPWrite_setting[3].reg_setting;
 	sensor_setting.addr_type = gc5035OTPWrite_setting[3].addr_type;

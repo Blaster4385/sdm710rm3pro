@@ -4646,7 +4646,7 @@ static void wma_set_roam_offload_flag(tp_wma_handle wma, uint8_t vdev_id,
 {
 	QDF_STATUS status;
 	uint32_t flag = 0;
-	tpAniSirGlobal mac_ctx;
+	tpAniSirGlobal mac_ctx = 0;
 
 	if (is_set) {
 		flag = WMI_ROAM_FW_OFFLOAD_ENABLE_FLAG |
@@ -4658,13 +4658,13 @@ static void wma_set_roam_offload_flag(tp_wma_handle wma, uint8_t vdev_id,
 	 * by full scan in case no candidate is found in partial scan.
 	 */
 	if (wma->bmiss_skip_full_scan)
-		flag |= WMI_ROAM_BMISS_FINAL_SCAN_TYPE_FLAG;
+	{	flag |= WMI_ROAM_BMISS_FINAL_SCAN_TYPE_FLAG;
 
 		/*
 		 * If 4-way HS offload is disabled then let supplicant handle
 		 * 4way HS and firmware will still do LFR3.0 till reassoc phase.
 		 */
-		mac_ctx = (tpAniSirGlobal)cds_get_context(QDF_MODULE_ID_PE);
+		mac_ctx = (tpAniSirGlobal)cds_get_context(QDF_MODULE_ID_PE);}
 		if (mac_ctx &&
 		    mac_ctx->roam.configParam.disable_4way_hs_offload)
 			flag |= WMI_VDEV_PARAM_SKIP_ROAM_EAPOL_4WAY_HANDSHAKE;
